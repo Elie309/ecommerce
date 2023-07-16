@@ -1,10 +1,11 @@
+import MainLayout from "./Layout/MainLayout"
 
 function App() {
 
   return (
-    <>
-      <h1 className="text-red-600">Hello Wrld!</h1>
-    </>
+    <MainLayout>
+      <h1>Best Sellers</h1>
+    </MainLayout>
   )
 }
 
