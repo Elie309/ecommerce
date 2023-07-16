@@ -13,6 +13,7 @@ import Register from './pages/auth/Register.tsx';
 import Product, { loader as ProductLoader } from './pages/product/Product.tsx';
 import Products from './pages/product/Products.tsx';
 import AddProduct, { action as actionProductAdd } from './pages/product/AddProduct.tsx';
+import ForgotPassword from './pages/auth/ForgotPassword.tsx';
 
 const router = createBrowserRouter([
   { path: "/",
@@ -27,6 +28,11 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+    errorElement: <ErrorElement title="404 Not Found" message="Page Not Found" goBackLink="/" />,
   },
 
   // Products related routes

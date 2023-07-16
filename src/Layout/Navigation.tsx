@@ -1,34 +1,33 @@
 import { Link } from "react-router-dom";
+import CartIcon from "../components/Icons/CartIcon";
+import SearchIcon from "../components/Icons/SearchIcon";
+
+const ICON_HEIGHT_SEARCH = 16;
+const ICON_WIDTH_SEARCH = 16;
 
 export default function Navigation() {
 
-  
+
   return (
-    <nav className="flex items-center justify-between bg-gray-900 py-4 px-8">
+    <nav className="flex justify-between bg-gray-900 py-4 px-8">
       <Link to="/" className="text-white text-2xl font-bold">
-        Logo
+        Techology
       </Link>
 
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center text-white">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
+
+      <div className="flex justify-around w-2/6 pr-3">
+
+        <div className="relative">
+          <SearchIcon
+            className="absolute fill-white"
+            height={ICON_HEIGHT_SEARCH}
+            width={ICON_WIDTH_SEARCH}
+
+          />
           <input
             type="text"
             placeholder="Search"
-            className="bg-transparent text-white placeholder-white::placeholder focus:outline-none"
+            className="pl-8 pb-2 bg-transparent border-b-2 border-white text-white placeholder-white::placeholder focus:outline-none"
           />
         </div>
 
@@ -37,21 +36,14 @@ export default function Navigation() {
         </Link>
 
         <Link to="/cart" className="text-white">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4h16M6 8h12m-6 10a6 6 0 110-12 6 6 0 010 12z"
-            />
-          </svg>
+          <CartIcon
+            className="absolute ml-1 fill-white"
+            height={26}
+            width={26}
+          />
         </Link>
+
+
       </div>
     </nav>
   );

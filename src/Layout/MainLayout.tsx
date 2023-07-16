@@ -4,11 +4,12 @@ import Navigation from "./Navigation";
 
 interface Props{
   children: React.ReactNode;
+  className?: string;
 }
 
-export default function MainLayout({ children }: Props) {
+export default function MainLayout({ children, className }: Props) {
   return (
-    <main className="h-full w-full">
+    <main className={"h-full w-full " + className}>
       <Navigation />
       {children}
       <Footer />
