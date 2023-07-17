@@ -1,35 +1,89 @@
-import { ActionFunctionArgs, Form, redirect } from "react-router-dom";
+import { ActionFunctionArgs, Form, useActionData } from "react-router-dom";
 import CenteredLayout from "../../Layout/CenteredLayout";
-import fakeData from "./procdutFakeData";
+import Product from "../../Objects/Product";
+import IResponse from "../../Objects/IResponse";
 
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs): Promise<IResponse> {
   const formData = await request.formData();
 
-  fakeData.push({
-    id: fakeData.length + 1,
-    name: formData.get("name") as string,
-    price: Number(formData.get("price")),
-    currency: formData.get("currency") as string,
-    category: formData.get("category") as string,
-    quantity: Number(formData.get("quantity")),
-    image: formData.get("image") as string,
-    description: formData.get("description") as string,
-    reviews: "",
-  });
 
-  return redirect(`/products`);
+  try {
+
+    let price = parseInt(formData.get("price") as string);
+
+
+    let product = new Product(
+      formData.get("name") as string,
+      price,
+      formData.get("currency") as string,
+      formData.get("description") as string,
+      formData.get("image") as string,
+      formData.get("category") as string,
+    )
+
+    
+
+    const response = await product.save()
+
+    if (response.status !== 201) return response;
+
+
+    return response;
+
+
+  } catch (error: any) {
+
+    return {
+      status: 500,
+      data: error.message,
+      success: false,
+      message: error.message,
+      error: {
+        message: error.message,
+        code: error.code,
+      }
+    }
+
+
+  }
 }
 
 export default function addProduct() {
 
+  const actionData = useActionData();
+
+  let data: IResponse | null = null
+  if (actionData) {
+    data = actionData as IResponse;
+
+    if (data.status === 200) {
+      //REset all fields
+      document.querySelectorAll("input").forEach(input => input.value = "");
+      const descrption = document.querySelector("#description") as HTMLTextAreaElement;
+      if(descrption){
+        descrption.value = "";
+      }
+      
+      const selectCurrency = document.querySelector('#currency') as HTMLSelectElement;
+      if(selectCurrency){
+        selectCurrency.value = selectCurrency.options[0].value;
+      }
+      const selectCategory = document.querySelector('#category') as HTMLSelectElement;
+      if(selectCategory){
+        selectCategory.value = selectCategory.options[0].value;
+      }
+    }
+  }
+
+
   return (
     <CenteredLayout>
-      <div className="h-full w-full md:w-3/4 md:h-5/6 overflow-y-auto overflow-x-hidden px-4 py-8 bg-white shadow-md rounded-md">
+      <div className="h-full w-full md:w-3/4 overflow-y-auto overflow-x-hidden px-4 py-8 bg-white shadow-md rounded-md">
 
         <h1 className="w-full text-center text-3xl font-bold text-gray-900">New Product</h1>
 
-        <Form method="POST" className="flex flex-col md:grid md:grid-cols-2 space gap-2 w-full mt-4">
+        <Form method="POST" className="flex flex-col md:grid md:grid-cols-2 gap-2 w-full mt-4">
 
           {/* NAME */}
           <div>
@@ -93,7 +147,7 @@ export default function addProduct() {
           {/* DESCRIPTION */}
           <div className="col-span-2">
             <label className="mt-4 text-sm font-semibold text-gray-500">Description</label>
-            <textarea name="description" className="w-full px-4 py-2 mt-2 border rounded-md outline-none border-gray-300 focus:border-indigo-500" />
+            <textarea id="description" name="description" className="w-full px-4 py-2 mt-2 border rounded-md outline-none border-gray-300 focus:border-indigo-500" />
           </div>
 
           {/* SUBMIT */}
@@ -123,6 +177,10 @@ export default function addProduct() {
             </button>
 
           </div>
+
+          {data && <div className="col-span-2 w-full flex flex-row justify-center">
+            <p className="text-red-500 text-xl">{data.message}</p>
+          </div>}
 
 
         </Form>

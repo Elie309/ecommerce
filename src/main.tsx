@@ -10,8 +10,8 @@ import {
 import ErrorElement from './components/ErrorElement.tsx';
 import Login from './pages/auth/Login.tsx';
 import Register from './pages/auth/Register.tsx';
-import Product, { loader as ProductLoader } from './pages/product/Product.tsx';
-import Products from './pages/product/Products.tsx';
+import ProductView, { loader as ProductLoader } from './pages/product/ProductView.tsx';
+import ProductsList, {loader as AllProductsLoader} from './pages/product/ProductsList.tsx';
 import AddProduct, { action as actionProductAdd } from './pages/product/AddProduct.tsx';
 import ForgotPassword from './pages/auth/ForgotPassword.tsx';
 
@@ -38,17 +38,18 @@ const router = createBrowserRouter([
   // Products related routes
   {
     path: "/products",
-    element: <Products />,
+    element: <ProductsList />,
+    loader: AllProductsLoader,
   },
   {
     path: "/products/:id",
-    element: <Product />,
+    element: <ProductView />,
     loader: ProductLoader,
     errorElement: <ErrorElement title="404 Not Found" message="Product Not Found" goBackLink="/products" />,
   },
   {
     path: "/products/:id/edit",
-    element: <Product />,
+    element: <ProductView />,
   },
   {
     path: "/products/new",
@@ -57,7 +58,7 @@ const router = createBrowserRouter([
   },
 
   // Catch-all 404
-  { path: "/:path*",
+  { path: "/:path/*",
     element: <ErrorElement title="404 Not Found" message="Page Not Found" goBackLink="/" />,
   },
 

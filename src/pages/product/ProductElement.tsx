@@ -1,19 +1,24 @@
 
 interface subElements {
-    id: number;
-    name: string;
-    price: number;
-    currency: string;
-    description: string;
-    image: string;
-    category: string;
-    quantity: number;
-    reviews: string;
+    product: {
+        id: number;
+        name: string;
+        price: number;
+        currency: string;
+        description: string;
+        image: string;
+        category: string;
+        quantity: number;
+        reviews: string;
+
+    }
 }
 
 export default function ProductElement(props: subElements) {
 
-    const product = props;
+    const product = props.product;
+
+    console.log(product.id)
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6">

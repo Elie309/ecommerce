@@ -16,7 +16,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             className="text-white hover:text-gray-400"
           >
-            <img className="object-contain w-12" src="github-logo.png" />
+            <img className="object-contain w-12" src="/github-logo.png" />
             
             <p className="font-semibold">Github</p>
           </a>
