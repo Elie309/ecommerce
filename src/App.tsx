@@ -1,5 +1,5 @@
 import MainLayout from "./Layout/MainLayout"
-import ProductElement from "./pages/product/ProductElement";
+// import ProductElement from "./pages/product/ProductElement";
 
 
 function App() {
