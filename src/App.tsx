@@ -1,8 +1,6 @@
 import MainLayout from "./Layout/MainLayout"
 import ProductElement from "./pages/product/ProductElement";
-import fakeData from "./pages/product/procdutFakeData"
 
-const products = fakeData;
 
 function App() {
 
@@ -16,10 +14,10 @@ function App() {
       </div>
 
 
-      <div className="m-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+{/*       <div className="m-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products.map((product) => (
           <ProductElement key={product.id} {...product} />
-        ))}
+        ))} */}
       </div>
 
     </MainLayout>
