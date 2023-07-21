@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, Form, redirect, useActionData, useNavigate } from "react-router-dom";
+import { ActionFunctionArgs, Form, useActionData, useNavigate } from "react-router-dom";
 import CenteredLayout from "../../Layout/CenteredLayout";
 import User from "../../logic/Objects/User";
 import IResponse from "../../logic/interface/IResponse";
