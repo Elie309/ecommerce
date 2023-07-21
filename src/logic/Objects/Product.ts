@@ -34,8 +34,8 @@
 // 33. productRelated
 
 import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
-import { fireDB } from "../firebase/firebase";
-import IResponse from "./IResponse";
+import { fireDB } from "../../firebase/firebase";
+import IResponse from "../interface/IResponse";
 
 
 const PRODUCT_COLLECTION = 'products';

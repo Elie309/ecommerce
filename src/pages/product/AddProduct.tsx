@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, Form, useActionData } from "react-router-dom";
 import CenteredLayout from "../../Layout/CenteredLayout";
-import Product from "../../Objects/Product";
-import IResponse from "../../Objects/IResponse";
+import Product from "../../logic/Objects/Product";
+import IResponse from "../../logic/interface/IResponse";
 
 
 export async function action({ request }: ActionFunctionArgs): Promise<IResponse> {
@@ -57,7 +57,7 @@ export default function addProduct() {
   if (actionData) {
     data = actionData as IResponse;
 
-    if (data.status === 200) {
+    if (data.status === 201) {
       //REset all fields
       document.querySelectorAll("input").forEach(input => input.value = "");
       const descrption = document.querySelector("#description") as HTMLTextAreaElement;
@@ -118,6 +118,7 @@ export default function addProduct() {
           </div>
 
 
+
           {/* CATEGORY */}
           <div>
             <label className="mt-4 text-sm font-semibold text-gray-500">Category</label>
@@ -132,11 +133,11 @@ export default function addProduct() {
             </select>
           </div>
 
-          <div>
-            {/* QUANTITY */}
-            <label className="mt-4 text-sm font-semibold text-gray-500">Quantity</label>
-            <input name="quantity" className="w-full px-4 py-2 mt-2 border rounded-md outline-none border-gray-300 focus:border-indigo-500" type="number" />
-          </div>
+
+          {/* BLANK */}
+          {/* ! ADD LATER FAMILY */}
+          <div></div>
+
 
           {/* IMAGE */}
           <div className="my-2 ml-2">

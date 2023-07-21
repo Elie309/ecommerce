@@ -9,7 +9,7 @@
  * - 0-9 numbers allowed
  * - Additionally email may contain only dot(.), dash(-), underscore(_) and other special characters
  */
-export const regEmail = new RegExp("^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
+export const regEmail = new RegExp("^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9]+\\.)+[a-zA-Z]{2,6}$");
 
 
 /**

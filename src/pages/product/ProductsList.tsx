@@ -1,6 +1,6 @@
 import MainLayout from "../../Layout/MainLayout";
-import IResponse from "../../Objects/IResponse";
-import Product from "../../Objects/Product";
+import IResponse from "../../logic/interface/IResponse";
+import Product from "../../logic/Objects/Product";
 import ProductElement from "./ProductElement";
 import { useLoaderData } from "react-router-dom";
 

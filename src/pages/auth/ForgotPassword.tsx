@@ -9,11 +9,15 @@ export default function ForgotPassword() {
             <div className="w-full h-full md:max-w-md md:h-fit px-6 py-8 bg-white shadow-md rounded-md">
                 <h1 className="text-3xl text-center font-bold text-gray-900"><a href="/">Techology</a></h1>
                 <h2 className="mt-4 text-xl text-center">Forgot Password</h2>
-                <Form method='POST' className="space-y-4">
+                <Form method='POST' className="flex flex-col py-4 justify-center">
                     <div>
-                        <label htmlFor="email" className="block text-gray-700">
+                        <label className="mt-4 text-sm 
+                                    font-semibold text-gray-500"
+                            
+                        >
                             Email
                         </label>
+
                         <input
 
                             className="w-full px-4 py-2 mt-2 border rounded-md 
@@ -24,14 +28,17 @@ export default function ForgotPassword() {
                         />
 
                     </div>
-                    <button
+
+                    <button className="w-full px-4 py-2 mt-4 text-sm 
+                                        font-medium text-white bg-indigo-500 rounded-md 
+                                        hover:bg-indigo-600"
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-blue-500 focus:ring-2"
                     >
                         Reset Password
                     </button>
+
                 </Form>
-                <p className="mt-4 text-sm text-gray-600">
+                <p className="mt-4 text-center text-sm text-gray-600">
                     Remember your password?{' '}
                     <Link to="/login" className="text-blue-500">
                         Login

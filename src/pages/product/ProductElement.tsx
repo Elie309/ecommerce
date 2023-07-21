@@ -18,8 +18,6 @@ export default function ProductElement(props: subElements) {
 
     const product = props.product;
 
-    console.log(product.id)
-
     return (
         <div className="bg-white rounded-lg shadow-md p-6">
 
