@@ -46,7 +46,7 @@ export default function logout() {
                 <h1 className="text-3xl text-center font-bold text-gray-900"><a href="/">Techology</a></h1>
                 <h2 className="mt-4 text-xl text-center">Logout</h2>
                 <div className="my-4 flex flex-col">
-                    <p className="text-sm text-center text-red-600">{data.message}</p>
+                    <p className="text-md text-center text-red-600 font-semibold">{data.message}</p>
                 </div>
                 
             </div>

@@ -119,6 +119,8 @@ export default class User {
 
             if (user.user.emailVerified === false) {
 
+                await fireAuth.signOut();
+
                 await sendEmailVerification(user.user);
 
                 return {
@@ -126,9 +128,9 @@ export default class User {
                         code: "",
                         message: ""
                     },
-                    status: 200,
+                    status: 400,
                     success: true,
-                    message: "User logged in, please verify your email. You will be redirect in a few seconds",
+                    message: "Please verify your email, an email has been sent to you.",
                     data: user
                 };
 
@@ -141,7 +143,7 @@ export default class User {
                 },
                 status: 200,
                 success: true,
-                message: "User logged in, you will be redirected to the homepage",
+                message: "User logged in, you will be redirected.",
                 data: user
             };
 
