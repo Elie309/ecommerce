@@ -1,7 +1,8 @@
-import { ActionFunctionArgs, Form, useActionData, useNavigate } from "react-router-dom";
+import { ActionFunctionArgs, Form, useActionData, useNavigate, useSubmit } from "react-router-dom";
 import CenteredLayout from "../../Layout/CenteredLayout";
 import User from "../../logic/Objects/User";
 import IResponse from "../../logic/interface/IResponse";
+import { useEffect, useState } from "react";
 
 export async function action({ request }: ActionFunctionArgs): Promise<IResponse> {
 
@@ -45,16 +46,35 @@ export default function login() {
 
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
-  if (actionData) {
+  const submit = useSubmit();
 
-    if (actionData.status === 200) {
+  const handleClick = () => {
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+
+    submit(formData, { method: "POST"});
+  }
+      
+  useEffect(() => {
+
+    if(actionData && actionData?.status === 200){
+      setEmail("");
+      setPassword("");
       setTimeout(() => {
         navigate("/")
-      }, 2000)
+      }, 1000);
     }
 
-  }
+    setLoading(false);
+  }, [actionData])
+
 
 
   return (
@@ -64,13 +84,15 @@ export default function login() {
         <h2 className="mt-4 text-xl text-center">Login</h2>
 
 
-        <Form method="POST" className="flex flex-col w-full mt-4">
+        <Form className="flex flex-col w-full mt-4">
 
           <label className="text-sm font-semibold text-gray-500">Email</label>
           <input className="w-full px-4 py-2 mt-2 border rounded-md outline-none 
               border-gray-300 focus:border-indigo-500"
             name="email"
             type="email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
 
@@ -80,12 +102,16 @@ export default function login() {
                 focus:border-indigo-500"
             name="password"
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             />
 
-          <button className="w-full px-4 py-2 mt-4 
+          <button className={`w-full px-4 py-2 mt-4 
                   text-sm font-medium text-white bg-indigo-500 
-                  rounded-md hover:bg-indigo-600"
-            type="submit"
+                  rounded-md hover:bg-indigo-600
+                  ${ loading && actionData?.status !== 200 ? "disabled:hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-progress" : ""}`}
+            onClick={handleClick}
+            disabled={loading}
           >
             Login
           </button>

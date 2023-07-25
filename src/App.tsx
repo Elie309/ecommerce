@@ -1,27 +1,138 @@
-import MainLayout from "./Layout/MainLayout"
-// import ProductElement from "./pages/product/ProductElement";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
+
+import ErrorElement from './components/ErrorElement.tsx';
+
+import Login, { action as actionLogin } from './pages/auth/Login.tsx';
+import Register, { action as actionRegister } from './pages/auth/Register.tsx';
+import ProductView, { loader as ProductLoader } from './pages/product/ProductView.tsx';
+import ProductsList, { loader as AllProductsLoader } from './pages/product/ProductsList.tsx';
+import AddProduct, { action as actionProductAdd } from './pages/product/AddProduct.tsx';
+import ForgotPassword from './pages/auth/ForgotPassword.tsx';
+import Logout, { loader as LogoutLoader } from './pages/auth/Logout.tsx';
 
 
-function App() {
+import User from './logic/Objects/User.ts';
+import Home from "./pages/Home.tsx";
+import { useEffect, useState } from "react";
 
-  return (
-    <MainLayout>
-      <div className="flex flex-col justify-center">
-        <h1 className="text-3xl text-gray-800 text-center mt-5">Best Sellers</h1>
 
-        <a href="/products" className="text-center text-blue-500 text-xl">See all products</a>
 
+
+
+export default function App() {
+
+  
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  
+
+  useEffect(() => {
+
+
+
+    const checkIfUserLoggedIn = async () => {
+      setLoading(true);
+
+      await User.isLoggedIn().then((isLoggedIn) => {
+        setIsUserLoggedIn(isLoggedIn);
+      }).catch(() => {
+        setIsUserLoggedIn(false);
+      
+      }).finally(() => {
+        setLoading(false);
+      });
+
+    }
+
+    checkIfUserLoggedIn();
+
+    
+  }, [isUserLoggedIn]);
+
+
+ 
+
+  if (loading) {
+
+    return (
+
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
 
 
-{/*       <div className="m-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((product) => (
-          <ProductElement key={product.id} {...product} />
-        ))} 
-      </div>*/}
+    )
 
-    </MainLayout>
+  }
+
+  const routerBroswer = createBrowserRouter([
+    {
+      path: "/",
+      element: <Home />,
+    },
+
+    // Auth related routes
+    {
+      path: "/login",
+      element: isUserLoggedIn ? <Navigate to={"/products"} /> : <Login />,
+      action: actionLogin,
+    },
+    {
+      path: "/register",
+      element: isUserLoggedIn ? <Navigate to={"/products"} /> : <Register />,
+      action: actionRegister,
+    },
+    {
+      path: "/logout",
+      element: <Logout />,
+      loader: LogoutLoader,
+    },
+    {
+      path: "/forgot-password",
+      element: isUserLoggedIn ? <Navigate to={"/products"} /> : <ForgotPassword />,
+      errorElement: <ErrorElement title="404 Not Found" message="Page Not Found" goBackLink="/" />,
+    },
+
+    // Products related routes
+    {
+      path: "/products",
+      element: <ProductsList />,
+      loader: AllProductsLoader,
+    },
+    {
+      path: "/products/:id",
+      element: <ProductView />,
+      loader: ProductLoader,
+      errorElement: <ErrorElement title="404 Not Found" message="Product Not Found" goBackLink="/products" />,
+    },
+    {
+      path: "/products/:id/edit",
+      element: <ProductView />,
+    },
+    {
+      path: "/products/new",
+      element: <AddProduct />,
+      action: actionProductAdd
+    },
+
+    // Catch-all 404
+    {
+      path: "/:path/*",
+      element: <ErrorElement title="404 Not Found" message="Page Not Found" goBackLink="/" />,
+    },
+
+  ]);
+
+  return (
+    <>
+      <RouterProvider router={routerBroswer} />
+    </>
   )
+
+
 }
 
-export default App

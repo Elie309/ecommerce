@@ -2,6 +2,7 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import CenteredLayout from "../../Layout/CenteredLayout";
 import IResponse from "../../logic/interface/IResponse";
 import User from "../../logic/Objects/User";
+import { useEffect } from "react";
 
 export async function loader(): Promise<IResponse>{
 
@@ -34,11 +35,13 @@ export default function logout() {
 
     const navigate = useNavigate();
 
-    if(data.status === 200) {
-        setTimeout(() => {
-            navigate("/")
-        },2000)
-    }
+    useEffect(() => {
+
+        if (data.success) {
+            navigate('/login');
+        }
+
+    }, [data])
 
     return (
         <CenteredLayout>
@@ -48,9 +51,7 @@ export default function logout() {
                 <div className="my-4 flex flex-col">
                     <p className="text-md text-center text-red-600 font-semibold">{data.message}</p>
                 </div>
-                
             </div>
-
         </CenteredLayout>
     )
 

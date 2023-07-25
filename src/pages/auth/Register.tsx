@@ -1,7 +1,8 @@
-import { ActionFunctionArgs, Form, redirect, useActionData } from "react-router-dom";
+import { ActionFunctionArgs, Form, useActionData, useNavigate, useSubmit } from "react-router-dom";
 import CenteredLayout from "../../Layout/CenteredLayout";
 import IResponse from "../../logic/interface/IResponse";
 import User from "../../logic/Objects/User";
+import { useEffect, useState } from "react";
 
 export async function action({ request }: ActionFunctionArgs): Promise<IResponse> {
 
@@ -40,15 +41,37 @@ export default function register() {
 
   const actionData = useActionData() as IResponse | null;
 
-  if (actionData) {
+  const navigate = useNavigate();
 
-    if (actionData.status === 201) {
-      setTimeout(() => {
-        redirect("/login")
-      }, 2000)
-    }
+  const [loading, setLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  const submit = useSubmit();
+
+  const handleClick = () => {
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+
+    submit(formData, { method: "POST" });
 
   }
+
+
+  useEffect(() => {
+    if(actionData && actionData.status === 201) {
+      setEmail("");
+      setPassword("");
+      setTimeout(() => {
+        navigate("/login")
+      }, 1000)
+    }
+
+    setLoading(false);
+  }, [actionData]);
 
 
   return (
@@ -57,7 +80,7 @@ export default function register() {
       <div className="w-full h-full md:max-w-md md:h-fit px-6 py-8 bg-white shadow-md rounded-md">
         <h1 className="text-3xl text-center font-bold text-gray-900"><a href="/">Techology</a></h1>
         <h2 className="mt-4 text-xl text-center">Register</h2>
-        <Form method="POST" className="flex flex-col w-full mt-4">
+        <Form className="flex flex-col w-full mt-4">
 
           <label className="text-sm font-semibold text-gray-500">Email</label>
           <input className="w-full px-4 py-2 mt-2 border 
@@ -65,6 +88,8 @@ export default function register() {
                    focus:border-indigo-500"
             name="email"
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
 
@@ -74,13 +99,19 @@ export default function register() {
                 focus:border-indigo-500"
             name="password"
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
 
-          <button className="w-full px-4 py-2 mt-4
+          <button
+            className="w-full px-4 py-2 mt-4
                  text-sm font-medium text-white bg-indigo-500 
-                 rounded-md hover:bg-indigo-600"
+                 rounded-md hover:bg-indigo-600 
+                 disabled:hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-progress"
             type="submit"
+            onClick={handleClick}
+            disabled={loading}
           >
             Register
           </button>
@@ -91,7 +122,7 @@ export default function register() {
         </div>
 
         {actionData && (
-          <p className="text-sm text-center text-red-600">{actionData.message}</p>
+          <p className="text-md text-center text-red-600 font-semibold">{actionData.message}</p>
         )}
 
       </div>

@@ -1,5 +1,24 @@
 import { Form, Link } from 'react-router-dom';
 import CenteredLayout from '../../Layout/CenteredLayout';
+import IResponse from '../../logic/interface/IResponse';
+
+export async function action(
+    // { request }: ActionFunctionArgs
+    ): Promise<IResponse> {
+
+        //TODO: Implement this function
+
+    return {
+        status: 200,
+        data: null,
+        success: true,
+        message: "Password reset link sent to your email",
+        error: {
+            message: "",
+            code: "",
+        }
+    }
+}
 
 export default function ForgotPassword() {
 

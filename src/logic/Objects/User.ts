@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from "firebase/auth";
+import { browserSessionPersistence, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
 import { regEmail, regPasswordForLogin, regPasswordForRegistration } from "../Helpers/regexConfig";
 import { fireAuth } from "../../firebase/firebase";
 import IResponse from "../interface/IResponse";
@@ -60,7 +60,7 @@ export default class User {
     public async register(): Promise<IResponse> {
         try {
 
-            if(!regPasswordForRegistration.test(this.password)){
+            if (!regPasswordForRegistration.test(this.password)) {
                 return {
                     error: {
                         code: "auth/weak-password",
@@ -75,7 +75,7 @@ export default class User {
             }
 
             const user = await createUserWithEmailAndPassword(fireAuth, this.email, this.password);
-            
+
             await sendEmailVerification(user.user);
 
             return {
@@ -101,7 +101,7 @@ export default class User {
 
         try {
 
-            if(!regPasswordForLogin.test(this.password)){
+            if (!regPasswordForLogin.test(this.password)) {
                 return {
                     error: {
                         code: "auth/bad-password",
@@ -115,22 +115,24 @@ export default class User {
             }
 
 
+            await setPersistence(fireAuth, browserSessionPersistence);
+
             const user = await signInWithEmailAndPassword(fireAuth, this.email, this.password);
 
             if (user.user.emailVerified === false) {
 
                 await fireAuth.signOut();
 
-                await sendEmailVerification(user.user);
+                //TODO: Create a page for this
 
                 return {
                     error: {
-                        code: "",
-                        message: ""
+                        code: "auth/email-not-verified",
+                        message: " Please verify your email."
                     },
                     status: 400,
                     success: true,
-                    message: "Please verify your email, an email has been sent to you.",
+                    message: "Please verify your email.",
                     data: user
                 };
 
@@ -149,7 +151,7 @@ export default class User {
 
 
         } catch (error: any) {
-                return firebaseErrorAuthHandler(error);
+            return firebaseErrorAuthHandler(error);
         }
 
     }
@@ -161,7 +163,7 @@ export default class User {
         try {
 
             await fireAuth.signOut();
-            
+
             return {
                 error: {
                     code: "",
@@ -175,48 +177,103 @@ export default class User {
 
 
         } catch (error: any) {
-            
+
             return firebaseErrorAuthHandler(error);
 
         }
 
     }
 
-    public resetPassword(): void {
+    // static async getLoggedUserInformation(): Promise<IResponse> {
 
-        //Reset password for user
+    //     let response: IResponse = {
+    //         error: {
+    //             code: "",
+    //             message: ""
+    //         },
+    //         status: 200,
+    //         success: true,
+    //         message: "User Information",
+    //         data: null
+    //     };
+
+
+    //     fireAuth.onAuthStateChanged((user: any) => {
+
+
+    //         if (user === null) {
+
+    //             response = {
+    //                 error: {
+    //                     code: "auth/user-not-found",
+    //                     message: "User not found"
+    //                 },
+    //                 status: 400,
+    //                 success: false,
+    //                 message: "User not found",
+    //                 data: null
+    //             };
+
+    //             return;
+
+    //         }
+
+    //         if (fireAuth.currentUser?.emailVerified === false) {
+
+    //             response = {
+    //                 error: {
+    //                     code: "auth/email-not-verified",
+    //                     message: "Email not verified"
+    //                 },
+    //                 status: 400,
+    //                 success: false,
+    //                 message: "Email not verified",
+    //                 data: null
+    //             };
+
+    //             return;
+
+    //         }
+
+    //         response = {
+    //             error: {
+    //                 code: "",
+    //                 message: ""
+    //             },
+    //             status: 200,
+    //             success: true,
+    //             message: "User Information",
+    //             data: fireAuth.currentUser
+    //         };
+
+    //     });
+
+
+    //     return response;
+
+
+    // }
+
+    static async isLoggedIn(): Promise<boolean> {
+
+        return new Promise((resolver) => {
+
+            fireAuth.onAuthStateChanged((user) => {
+                if (user) {
+                    resolver(true)
+                } else {
+                    resolver(false)
+                }
+            });
+
+        })
+
+
+
+
 
     }
 
-    public changePassword(): void {
-
-        //Change password for user
-
-    }
-
-    public changeEmail(): void {
-
-        //Change email for user
-
-    }
-
-    public deleteAccount(): void {
-
-        //Delete account for user
-
-    }
-
-    public updateAccount(): void {
-
-        //Update account for user
-
-    }
-
-    public getAccount(): void {
-
-        //Get account for user
-
-    }
 
     public getOrders(): void {
 
