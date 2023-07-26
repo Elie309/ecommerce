@@ -4,7 +4,7 @@ import IResponse from "../../logic/interface/IResponse";
 import User from "../../logic/Objects/User";
 import { useEffect } from "react";
 
-export async function loader(): Promise<IResponse>{
+export async function loader(): Promise<IResponse<null>>{
 
     try {
 
@@ -31,7 +31,7 @@ export async function loader(): Promise<IResponse>{
 
 export default function logout() {
 
-    const data = useLoaderData() as IResponse;
+    const data = useLoaderData() as IResponse<null>;
 
     const navigate = useNavigate();
 

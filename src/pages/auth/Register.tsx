@@ -3,8 +3,9 @@ import CenteredLayout from "../../Layout/CenteredLayout";
 import IResponse from "../../logic/interface/IResponse";
 import User from "../../logic/Objects/User";
 import { useEffect, useState } from "react";
+import { UserCredential } from "firebase/auth";
 
-export async function action({ request }: ActionFunctionArgs): Promise<IResponse> {
+export async function action({ request }: ActionFunctionArgs): Promise<IResponse<UserCredential | null>> {
 
   try {
 
@@ -37,9 +38,11 @@ export async function action({ request }: ActionFunctionArgs): Promise<IResponse
 
 }
 
+//TODO: Add a validation password input (confirm password)
+
 export default function register() {
 
-  const actionData = useActionData() as IResponse | null;
+  const actionData = useActionData() as IResponse<UserCredential | null>;
 
   const navigate = useNavigate();
 

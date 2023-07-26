@@ -4,7 +4,7 @@ import IResponse from '../../logic/interface/IResponse';
 
 export async function action(
     // { request }: ActionFunctionArgs
-    ): Promise<IResponse> {
+    ): Promise<IResponse<null>> {
 
         //TODO: Implement this function
 

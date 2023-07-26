@@ -3,8 +3,9 @@ import CenteredLayout from "../../Layout/CenteredLayout";
 import User from "../../logic/Objects/User";
 import IResponse from "../../logic/interface/IResponse";
 import { useEffect, useState } from "react";
+import { UserCredential } from "firebase/auth";
 
-export async function action({ request }: ActionFunctionArgs): Promise<IResponse> {
+export async function action({ request }: ActionFunctionArgs): Promise<IResponse<UserCredential | null>> {
 
   try {
 
@@ -42,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<IResponse
 
 export default function login() {
 
-  const actionData = useActionData() as IResponse | null;
+  const actionData = useActionData() as IResponse<UserCredential | null>;
 
   const navigate = useNavigate();
 

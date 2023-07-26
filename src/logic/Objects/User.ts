@@ -1,4 +1,4 @@
-import { browserSessionPersistence, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
+import { UserCredential, UserInfo, browserSessionPersistence, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
 import { regEmail, regPasswordForLogin, regPasswordForRegistration } from "../Helpers/regexConfig";
 import { fireAuth } from "../../firebase/firebase";
 import IResponse from "../interface/IResponse";
@@ -57,7 +57,7 @@ export default class User {
 
     // #region Methods
 
-    public async register(): Promise<IResponse> {
+    public async register(): Promise<IResponse<UserCredential | null>> {
         try {
 
             if (!regPasswordForRegistration.test(this.password)) {
@@ -96,7 +96,7 @@ export default class User {
 
     }
 
-    public async login(): Promise<IResponse> {
+    public async login(): Promise<IResponse<UserCredential | null>> {
 
 
         try {
@@ -156,7 +156,7 @@ export default class User {
 
     }
 
-    static async logout(): Promise<IResponse> {
+    static async logout(): Promise<IResponse<null>> {
 
         //Logout user
 
@@ -184,75 +184,66 @@ export default class User {
 
     }
 
-    // static async getLoggedUserInformation(): Promise<IResponse> {
-
-    //     let response: IResponse = {
-    //         error: {
-    //             code: "",
-    //             message: ""
-    //         },
-    //         status: 200,
-    //         success: true,
-    //         message: "User Information",
-    //         data: null
-    //     };
+    static async getLoggedUserInformation(): Promise<IResponse<UserInfo | null>> {
 
 
-    //     fireAuth.onAuthStateChanged((user: any) => {
 
 
-    //         if (user === null) {
-
-    //             response = {
-    //                 error: {
-    //                     code: "auth/user-not-found",
-    //                     message: "User not found"
-    //                 },
-    //                 status: 400,
-    //                 success: false,
-    //                 message: "User not found",
-    //                 data: null
-    //             };
-
-    //             return;
-
-    //         }
-
-    //         if (fireAuth.currentUser?.emailVerified === false) {
-
-    //             response = {
-    //                 error: {
-    //                     code: "auth/email-not-verified",
-    //                     message: "Email not verified"
-    //                 },
-    //                 status: 400,
-    //                 success: false,
-    //                 message: "Email not verified",
-    //                 data: null
-    //             };
-
-    //             return;
-
-    //         }
-
-    //         response = {
-    //             error: {
-    //                 code: "",
-    //                 message: ""
-    //             },
-    //             status: 200,
-    //             success: true,
-    //             message: "User Information",
-    //             data: fireAuth.currentUser
-    //         };
-
-    //     });
+        return new Promise((resolver) => {
+            fireAuth.onAuthStateChanged((user: any) => {
 
 
-    //     return response;
+                if (user === null) {
+    
+                   resolver({
+                        error: {
+                            code: "auth/user-not-found",
+                            message: "User not found"
+                        },
+                        status: 400,
+                        success: false,
+                        message: "User not found",
+                        data: null
+                    });
+    
+                    return;
+                }
+    
+                if (fireAuth.currentUser?.emailVerified === false) {
+    
+                    resolver({
+                        error: {
+                            code: "auth/email-not-verified",
+                            message: "Email not verified"
+                        },
+                        status: 400,
+                        success: false,
+                        message: "Email not verified",
+                        data: fireAuth.currentUser
+                    });
+    
+                    return;
+    
+                }
+    
+                resolver({
+                    error: {
+                        code: "",
+                        message: ""
+                    },
+                    status: 200,
+                    success: true,
+                    message: "User Information",
+                    data: fireAuth.currentUser
+                })
+    
+            });
+    
+        })
 
 
-    // }
+
+    }
 
     static async isLoggedIn(): Promise<boolean> {
 
