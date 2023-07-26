@@ -1,6 +1,8 @@
 import IResponse from "../interface/IResponse";
 import Product from "./Product";
 
+//TODO: Remove the _ from the private variables they were put due to the error not used
+
 export default class Cart {
 
   private _items: Product[] = [];
@@ -66,7 +68,7 @@ export default class Cart {
   }
 
 
-  static async addItemToCart(product: Product, quantity: number): Promise<IResponse<Product | null>> {
+  static async addItemToCart(product: Product, _quantity: number): Promise<IResponse<Product | null>> {
       
       try {
 
@@ -105,7 +107,7 @@ export default class Cart {
   }
 
 
-  static async removeItemFromCart(product: Product, quantity: number): Promise<IResponse<Product | null>> {
+  static async removeItemFromCart(product: Product, _quantity: number): Promise<IResponse<Product | null>> {
         
       try {
   
@@ -141,7 +143,7 @@ export default class Cart {
 
     }
 
-    static async getCart(userId: string): Promise<IResponse<Cart | null>> {
+    static async getCart(_userId: string): Promise<IResponse<Cart | null>> {
 
       try {
 
@@ -177,7 +179,7 @@ export default class Cart {
 
     }
 
-    static async updateCart(cart: Cart): Promise<IResponse<Cart | null>> {
+    static async updateCart(_cart: Cart): Promise<IResponse<Cart | null>> {
         
         try {
   
@@ -214,7 +216,7 @@ export default class Cart {
       }
 
       
-      static async deleteCart(userId: string): Promise<IResponse<Cart | null>> {
+      static async deleteCart(_userId: string): Promise<IResponse<Cart | null>> {
         
         try {
   

@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, Form, useActionData, useNavigate, useSubmit } from "react-router-dom";
-import CenteredLayout from "../../Layout/CenteredLayout";
+import CenteredLayout from "../../components/Layout/CenteredLayout";
 import IResponse from "../../logic/interface/IResponse";
 import User from "../../logic/Objects/User";
 import { useEffect, useState } from "react";

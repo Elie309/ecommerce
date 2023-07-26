@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, Form, useActionData } from "react-router-dom";
-import CenteredLayout from "../../Layout/CenteredLayout";
+import CenteredLayout from "../../components/Layout/CenteredLayout";
 import Product from "../../logic/Objects/Product";
 import IResponse from "../../logic/interface/IResponse";
 

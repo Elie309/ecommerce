@@ -1,4 +1,4 @@
-import CenteredLayout from "../Layout/CenteredLayout";
+import CenteredLayout from "./Layout/CenteredLayout";
 
 interface Props {
   title: string;

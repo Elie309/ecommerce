@@ -1,4 +1,4 @@
-import MainLayout from "../../Layout/MainLayout";
+import MainLayout from "../../components/Layout/MainLayout";
 import IResponse from "../../logic/interface/IResponse";
 import Product from "../../logic/Objects/Product";
 import ProductElement from "./ProductElement";

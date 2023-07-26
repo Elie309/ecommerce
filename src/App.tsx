@@ -18,6 +18,7 @@ import Logout, { loader as LogoutLoader } from './pages/auth/Logout.tsx';
 import User from './logic/Objects/User.ts';
 import Home from "./pages/Home.tsx";
 import { useEffect, useState } from "react";
+import { AuthProvider } from "./components/AuthProvider.tsx";
 
 
 
@@ -129,7 +130,9 @@ export default function App() {
 
   return (
     <>
+    <AuthProvider value={isUserLoggedIn}>
       <RouterProvider router={routerBroswer} />
+    </AuthProvider>
     </>
   )
 
