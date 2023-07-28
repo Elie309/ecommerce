@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, Form, useActionData, useNavigate, useSubmit } from "react-router-dom";
+import { ActionFunctionArgs, Form, useActionData, useSubmit } from "react-router-dom";
 import CenteredLayout from "../../components/Layout/CenteredLayout";
 import User from "../../logic/Objects/User";
 import IResponse from "../../logic/interface/IResponse";
@@ -14,7 +14,9 @@ export async function action({ request }: ActionFunctionArgs): Promise<IResponse
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const user = new User(email, password);
+    const user = new User();
+    user.email = email;
+    user.password = password;
 
     const response = await user.login();
 
@@ -45,8 +47,6 @@ export default function login() {
 
   const actionData = useActionData() as IResponse<UserCredential | null>;
 
-  const navigate = useNavigate();
-
   const [loading, setLoading] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -60,20 +60,21 @@ export default function login() {
     formData.append("email", email);
     formData.append("password", password);
 
-    submit(formData, { method: "POST"});
+    submit(formData, { method: "POST" });
   }
-      
+
   useEffect(() => {
 
-    if(actionData && actionData?.status === 200){
+    if (actionData && actionData?.status === 200) {
       setEmail("");
       setPassword("");
       setTimeout(() => {
-        navigate("/")
+        window.location.reload();
       }, 1000);
+    }else{
+      setLoading(false);
     }
 
-    setLoading(false);
   }, [actionData])
 
 
@@ -91,7 +92,7 @@ export default function login() {
           <input className="w-full px-4 py-2 mt-2 border rounded-md outline-none 
               border-gray-300 focus:border-indigo-500"
             name="email"
-            type="email" 
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -105,12 +106,12 @@ export default function login() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            />
+          />
 
           <button className={`w-full px-4 py-2 mt-4 
                   text-sm font-medium text-white bg-indigo-500 
                   rounded-md hover:bg-indigo-600
-                  ${ loading && actionData?.status !== 200 ? "disabled:hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-progress" : ""}`}
+                  ${loading ? "disabled:hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-progress" : ""}`}
             onClick={handleClick}
             disabled={loading}
           >
@@ -122,7 +123,11 @@ export default function login() {
           <a className="my-2 text-sm text-center text-indigo-400" href="register">Don't have an account?</a>
           <a className="my-2 text-xs text-center text-gray-400" href="forgot-password">Forgot your password?</a>
         </div>
-        {actionData && <p className="text-md text-center text-red-600 font-semibold">{actionData.message}</p>}
+        <p className={`text-md text-center select-none
+                  ${actionData ? "text-red-600" : "text-transparent"}
+                   font-semibold`}>
+          {actionData?.message || "You have found a little secret"}
+        </p>
       </div>
 
     </CenteredLayout>

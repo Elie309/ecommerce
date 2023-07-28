@@ -1,8 +1,20 @@
 import React, { useContext } from "react"
 
-const AuthContext = React.createContext<boolean>(false)
+const AuthContext = React.createContext<IAuthValue>({
+  authenticated: false,
+  username: "",
+  email: "",
+  cardId: "",
+})
 
-export function AuthProvider({children, value}: {children: React.ReactNode, value: boolean}) {
+export interface IAuthValue {
+  authenticated: boolean;
+  username: string;
+  email: string;
+  cardId: string;
+}
+
+export function AuthProvider({children, value}: {children: React.ReactNode, value: IAuthValue}) {
   return (
     <AuthContext.Provider value={value}>
       {children}

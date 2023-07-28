@@ -1,27 +1,57 @@
-import { UserCredential, UserInfo, browserSessionPersistence, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
-import { regEmail, regPasswordForLogin, regPasswordForRegistration } from "../Helpers/regexConfig";
-import { fireAuth } from "../../firebase/firebase";
+import {
+    UserCredential, UserInfo,
+    browserSessionPersistence, createUserWithEmailAndPassword,
+    sendEmailVerification, setPersistence, signInWithEmailAndPassword,
+    updateProfile
+} from "firebase/auth";
+import { regEmail, regName, regPasswordForLogin, regPasswordForRegistration } from "../Helpers/regexConfig";
+import { fireAuth, fireDB } from "../../firebase/firebase";
 import IResponse from "../interface/IResponse";
 import firebaseErrorAuthHandler from "../Helpers/FirebaseErrorAuthHandler";
+import { addDoc, collection } from "firebase/firestore";
+
+const USER_COLLECTION = "users";
 
 export default class User {
 
     //#region Properties
+    #id: string = "";
+    #username: string = "";
     #email: string = "";
     #password: string = "";
+    #confirmPassword: string = "";
 
-    constructor(email: string, password: string) {
-        this.email = email;
-        this.password = password;
-    }
+    //#endregion
 
     //#region Getters & setters
+
+    get id(): string {
+        return this.#id;
+    }
+
+    set id(value: string) {
+        this.#id.trim();
+        this.#id = value;
+    }
+
+    get username(): string {
+        return this.#username;
+    }
+
+    set username(value: string) {
+        this.username.trim();
+        if (!regName.test(value)) {
+            throw new Error("Username must be at least 3 characters");
+        }
+        this.#username = value;
+    }
 
     get email(): string {
         return this.#email;
     }
 
     set email(value: string) {
+        this.email.trim();
         if (!regEmail.test(value)) {
             throw new Error("Invalid authentication");
         }
@@ -37,30 +67,69 @@ export default class User {
         this.#password = password;
     }
 
+    get confirmPassword(): string {
+        return this.#confirmPassword;
+    }
+
+    set confirmPassword(value: string) {
+        this.#confirmPassword = value;
+    }
+
     //#endregion
 
 
     //#region Json methods
     public static fromJSON(json: any): User {
-        const user = new User(json.email, json.password);
+        const user = new User();
+        user.id = json.id;
+        user.username = json.username;
+        user.email = json.email;
+        user.password = json.password;
         return user;
     }
 
     public toJSON(): any {
         return {
+            id: this.id,
+            username: this.username,
             email: this.email,
-            password: this.password
-        };
+        }
     }
 
     //#endregion
 
-    // #region Methods
+    //#region Simple Methods
 
-    public async register(): Promise<IResponse<UserCredential | null>> {
+    public isPasswordAndConfirmPasswordEqual(): boolean {
+        if (this.password === this.confirmPassword) {
+            return true;
+        }
+        return false;
+    }
+
+    //#endregion
+
+    // #region Crud methods
+
+    public static async register(userObject: User): Promise<IResponse<UserCredential | null>> {
         try {
 
-            if (!regPasswordForRegistration.test(this.password)) {
+            if (!userObject.isPasswordAndConfirmPasswordEqual()) {
+
+                return {
+                    error: {
+                        code: "auth/passwords-not-equal",
+                        message: "Passwords are different"
+                    },
+                    status: 400,
+                    success: false,
+                    message: "Passwords are different",
+                    data: null
+                }
+
+            }
+
+            if (!regPasswordForRegistration.test(userObject.password)) {
                 return {
                     error: {
                         code: "auth/weak-password",
@@ -74,9 +143,23 @@ export default class User {
 
             }
 
-            const user = await createUserWithEmailAndPassword(fireAuth, this.email, this.password);
+            const user = await createUserWithEmailAndPassword(fireAuth, userObject.email, userObject.password);
+
+            await updateProfile(user.user, {
+                displayName: userObject.username
+            });
 
             await sendEmailVerification(user.user);
+
+            //TODO: Create instance in firestore
+
+            const newUserRegister = new User();
+            newUserRegister.id = user.user.uid;
+            newUserRegister.username = userObject.username;
+            newUserRegister.email = userObject.email;
+
+            await addDoc(collection(fireDB, USER_COLLECTION), newUserRegister.toJSON());
+
 
             return {
                 error: {
@@ -186,16 +269,13 @@ export default class User {
 
     static async getLoggedUserInformation(): Promise<IResponse<UserInfo | null>> {
 
-
-
-
         return new Promise((resolver) => {
             fireAuth.onAuthStateChanged((user: any) => {
 
 
                 if (user === null) {
-    
-                   resolver({
+
+                    resolver({
                         error: {
                             code: "auth/user-not-found",
                             message: "User not found"
@@ -205,12 +285,12 @@ export default class User {
                         message: "User not found",
                         data: null
                     });
-    
+
                     return;
                 }
-    
+
                 if (fireAuth.currentUser?.emailVerified === false) {
-    
+
                     resolver({
                         error: {
                             code: "auth/email-not-verified",
@@ -221,11 +301,11 @@ export default class User {
                         message: "Email not verified",
                         data: fireAuth.currentUser
                     });
-    
+
                     return;
-    
+
                 }
-    
+
                 resolver({
                     error: {
                         code: "",
@@ -236,9 +316,9 @@ export default class User {
                     message: "User Information",
                     data: fireAuth.currentUser
                 })
-    
+
             });
-    
+
         })
 
 

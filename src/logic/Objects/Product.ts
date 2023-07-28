@@ -216,7 +216,7 @@ export default class Product {
   //#region CRUD Methods
 
   //Method to addDoc the firebase
-  async save(): Promise<IResponse> {
+  async save(): Promise<IResponse<string | null>> {
 
     try {
 
@@ -239,7 +239,7 @@ export default class Product {
           success: false,
           status: 500,
           message: "Product not added",
-          data: "",
+          data: null,
           error: {
             code: "unknown",
             message: "Error while adding product to database"
@@ -252,7 +252,7 @@ export default class Product {
         success: false,
         status: 500,
         message: "Product not added",
-        data: "",
+        data: null,
         error: {
           code: error.code,
           message: error.message
@@ -265,7 +265,7 @@ export default class Product {
   }
 
   //GetAll
-  static async getAll(): Promise<IResponse> {
+  static async getAll(): Promise<IResponse<Product[] | null>> {
 
     try {
 
@@ -305,7 +305,7 @@ export default class Product {
         success: false,
         status: 500,
         message: "Products not fetched",
-        data: "",
+        data: null,
         error: {
           code: error.code,
           message: error.message
@@ -316,7 +316,7 @@ export default class Product {
   }
 
   //GetById
-  static async getById(id: string): Promise<IResponse> {
+  static async getById(id: string): Promise<IResponse<Product | null>> {
 
     try {
 
@@ -332,7 +332,7 @@ export default class Product {
           success: false,
           status: 404,
           message: "Product not found",
-          data: "",
+          data: null,
           error: {
             code: "not-found",
             message: "Product not found"
@@ -370,7 +370,7 @@ export default class Product {
         success: false,
         status: 500,
         message: "Product not fetched",
-        data: "",
+        data: null,
         error: {
           code: error.code,
           message: error.message

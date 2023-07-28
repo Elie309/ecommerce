@@ -1,15 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CartIcon from "../Icons/CartIcon";
 import SearchIcon from "../Icons/SearchIcon";
 import { useAuthValue } from "../AuthProvider";
 import ProfilSkeleton from "../Icons/ProfilSkeleton";
+import PopupMenu from "../AppearingDiv/PopupMenu";
 
 const ICON_HEIGHT_SEARCH = 16;
 const ICON_WIDTH_SEARCH = 16;
 
 export default function Navigation() {
 
-  const isAuthenticated = useAuthValue();
+  const isAuthenticated = useAuthValue().authenticated;
+  const navigate = useNavigate();
+
+  function handleDropDownClick(value: string) {
+    navigate(value);
+  }
+
 
 
   return (
@@ -17,7 +24,6 @@ export default function Navigation() {
       <Link to="/" className="text-white text-xl md:text-2xl font-bold">
         Techology
       </Link>
-
 
       <div className="flex justify-around w-2/6 pr-3">
 
@@ -44,26 +50,39 @@ export default function Navigation() {
         </Link>
 
         {
-          isAuthenticated ? (
-            <Link to="/profile" className="text-white">
-              <ProfilSkeleton className="absolute ml-1 fill-transparent"
-                  subclass="fill-white" 
-                  height={30}
-                  width={30}
-              />
-            </Link>
-          ) : (
-            <Link to="/login" className="text-white">
-              Login
-            </Link>
-          )
+          isAuthenticated ?
+            (
+              <ProfileNavigationItems handleDropDownClick={handleDropDownClick} />
+            )
+            :
+            (
+              <Link to="/login" className="text-white">
+                Login
+              </Link>
+            )
         }
-        
-
-        
-
-
       </div>
-    </nav>
+    </nav >
   );
+}
+
+
+const ProfileNavigationItems = (props: { handleDropDownClick: (value: string) => void }) => {
+
+  const MenuItems = [
+    { text: "Profile", link: "/profile" },
+    { text: "Logout", link: "/logout" }
+  ]
+
+  return (
+
+    <PopupMenu
+      text={<ProfilSkeleton className="fill-transparent" subclass="fill-white" height={26} width={26} />}
+      elementWrapperClass="bg-white shadow-md rounded-xl z-10"
+      onChildClick={props.handleDropDownClick}
+      internalElementClass="hover:bg-indigo-500 hover:text-white"
+      elements={MenuItems}
+    />
+
+  )
 }

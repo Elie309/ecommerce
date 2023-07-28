@@ -1,7 +1,7 @@
 import IResponse from "../interface/IResponse";
 
-export default function firebaseErrorAuthHandler(error: any): IResponse {
-    let response: IResponse = {
+export default function firebaseErrorAuthHandler(error: any): IResponse<null> {
+    let response: IResponse<null> = {
         error: {
             code: "",
             message: "",
@@ -100,9 +100,9 @@ export default function firebaseErrorAuthHandler(error: any): IResponse {
 
         default:
             response.error.code = "auth/unknown-error";
-            response.error.message = "An unknown error occurred.";
+            response.error.message = error.message || "An unknown error occurred";
             response.status = 500;
-            response.message = "An unknown error occurred.";
+            response.message = error.message || "An unknown error occurred.";
             break;
     }
 

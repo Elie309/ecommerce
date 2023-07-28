@@ -18,7 +18,9 @@ import Logout, { loader as LogoutLoader } from './pages/auth/Logout.tsx';
 import User from './logic/Objects/User.ts';
 import Home from "./pages/Home.tsx";
 import { useEffect, useState } from "react";
-import { AuthProvider } from "./components/AuthProvider.tsx";
+import { AuthProvider, IAuthValue } from "./components/AuthProvider.tsx";
+import Profile from "./pages/clients/Profile.tsx";
+import Cart from "./pages/clients/Cart.tsx";
 
 
 
@@ -26,36 +28,52 @@ import { AuthProvider } from "./components/AuthProvider.tsx";
 
 export default function App() {
 
-  
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState<boolean>(false);
+  const initialState: IAuthValue = {
+    authenticated: false,
+    username: "",
+    email: "",
+    cardId: "",
+  }
+
+  const [userInfo, setUserInfo] = useState<IAuthValue>(initialState);
   const [loading, setLoading] = useState<boolean>(true);
-  
+
+  const isAuthenticated = userInfo.authenticated;
+
 
   useEffect(() => {
 
-
-
     const checkIfUserLoggedIn = async () => {
+
+      try {
       setLoading(true);
 
-      await User.isLoggedIn().then((isLoggedIn) => {
-        setIsUserLoggedIn(isLoggedIn);
-      }).catch(() => {
-        setIsUserLoggedIn(false);
-      
-      }).finally(() => {
-        setLoading(false);
-      });
+        const response = await User.getLoggedUserInformation();
 
+        if (response.data !== null) {
+
+          setUserInfo({
+            authenticated: response.data !== null,
+            username: response.data.displayName!,
+            email: response.data.email!,
+            cardId: response.data.uid,
+          });
+
+        }else {
+          setUserInfo(initialState);
+        }
+      }catch(error: any){
+
+        setUserInfo(initialState);
+
+      }finally{
+        setLoading(false);
+      }
     }
 
     checkIfUserLoggedIn();
 
-    
-  }, [isUserLoggedIn]);
-
-
- 
+  }, []);
 
   if (loading) {
 
@@ -79,12 +97,12 @@ export default function App() {
     // Auth related routes
     {
       path: "/login",
-      element: isUserLoggedIn ? <Navigate to={"/products"} /> : <Login />,
+      element: isAuthenticated ? <Navigate to={"/products"} /> : <Login />,
       action: actionLogin,
     },
     {
       path: "/register",
-      element: isUserLoggedIn ? <Navigate to={"/products"} /> : <Register />,
+      element: isAuthenticated ? <Navigate to={"/products"} /> : <Register />,
       action: actionRegister,
     },
     {
@@ -94,9 +112,23 @@ export default function App() {
     },
     {
       path: "/forgot-password",
-      element: isUserLoggedIn ? <Navigate to={"/products"} /> : <ForgotPassword />,
+      element: isAuthenticated ? <Navigate to={"/products"} /> : <ForgotPassword />,
       errorElement: <ErrorElement title="404 Not Found" message="Page Not Found" goBackLink="/" />,
     },
+
+    // User related routes
+
+    {
+      path: "/profile",
+      element: isAuthenticated ? <Profile /> : <Navigate to={"/login"} />,
+      errorElement: <ErrorElement title="404 Not Found" message="User Not Found" goBackLink="/" />,
+    },
+    {
+      path: "/cart",
+      element: isAuthenticated ? <Cart /> : <Navigate to={"/login"} />,
+    },
+
+    // Sales related routes
 
     // Products related routes
     {
@@ -130,9 +162,9 @@ export default function App() {
 
   return (
     <>
-    <AuthProvider value={isUserLoggedIn}>
-      <RouterProvider router={routerBroswer} />
-    </AuthProvider>
+      <AuthProvider value={userInfo}>
+        <RouterProvider router={routerBroswer} />
+      </AuthProvider>
     </>
   )
 

@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import CenteredLayout from "../../components/Layout/CenteredLayout";
 import IResponse from "../../logic/interface/IResponse";
 import User from "../../logic/Objects/User";
@@ -33,12 +33,11 @@ export default function logout() {
 
     const data = useLoaderData() as IResponse<null>;
 
-    const navigate = useNavigate();
 
     useEffect(() => {
 
         if (data.success) {
-            navigate('/login');
+            window.location.href = "/login";
         }
 
     }, [data])
