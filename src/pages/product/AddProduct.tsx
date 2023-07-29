@@ -4,7 +4,7 @@ import Product from "../../logic/Objects/Product";
 import IResponse from "../../logic/interface/IResponse";
 
 
-export async function action({ request }: ActionFunctionArgs): Promise<IResponse> {
+export async function action({ request }: ActionFunctionArgs): Promise<IResponse<string | null>> {
   const formData = await request.formData();
 
 
@@ -53,9 +53,9 @@ export default function addProduct() {
 
   const actionData = useActionData();
 
-  let data: IResponse | null = null
+  let data: IResponse<string | null> | null = null;
   if (actionData) {
-    data = actionData as IResponse;
+    data = actionData as IResponse<string | null>;
 
     if (data.status === 201) {
       //REset all fields

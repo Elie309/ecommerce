@@ -5,7 +5,7 @@ import ProductElement from "./ProductElement";
 import { useLoaderData } from "react-router-dom";
 
 
-export async function loader(): Promise<IResponse>{
+export async function loader(): Promise<IResponse<Product[] | null>>{
 
   try{
 
@@ -34,7 +34,7 @@ Below to make the main product page, where all products are listed and search av
 */
 export default function ProductsList() {
 
-  let response: IResponse = useLoaderData() as IResponse;
+  let response = useLoaderData() as IResponse<Product[] | null>;
 
   if(response.status !== 200){
 

@@ -6,7 +6,7 @@ import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 
 
 
-export async function loader({ params }: LoaderFunctionArgs): Promise<IResponse> {
+export async function loader({ params }: LoaderFunctionArgs): Promise<IResponse<Product | null>> {
   try {
 
     const id = params.id as string;
@@ -23,7 +23,7 @@ export async function loader({ params }: LoaderFunctionArgs): Promise<IResponse>
       },
       success: false,
       status: 500,
-      data: [],
+      data: null,
       message: "Error while fetching data"
     }
 
@@ -34,7 +34,7 @@ export async function loader({ params }: LoaderFunctionArgs): Promise<IResponse>
 //Create a display page for my product
 export default function ProductView() {
 
-  const response: IResponse = useLoaderData() as IResponse;
+  const response = useLoaderData() as IResponse<Product | null>;
 
 
   const product = response.data as Product;
