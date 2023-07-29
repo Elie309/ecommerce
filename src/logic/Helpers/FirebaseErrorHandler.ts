@@ -1,6 +1,6 @@
 import IResponse from "../interface/IResponse";
 
-export default function firebaseErrorAuthHandler(error: any): IResponse<null> {
+export default function firebaseErrorHandler(error: any): IResponse<null> {
     let response: IResponse<null> = {
         error: {
             code: "",
@@ -95,6 +95,54 @@ export default function firebaseErrorAuthHandler(error: any): IResponse<null> {
             response.error.message = "Server error occurred during sign-out.";
             response.status = 500;
             response.message = "Server error occurred during sign-out.";
+            break;
+
+        case "permission-denied":
+            response.error.code = error.code;
+            response.message = "You don't have permission to access this resource.";
+            response.status = 403; // Forbidden
+            break;
+
+        case "not-found":
+            response.error.code = error.code;
+            response.message = "The requested resource was not found.";
+            response.status = 404; // Not Found
+            break;
+
+        case "data-validation-failed":
+            response.error.code = error.code;
+            response.message = "Data validation failed. Please check the data you're trying to save.";
+            response.status = 400; // Bad Request
+            break;
+
+        case "concurrent-modification":
+            response.error.code = error.code;
+            response.message = "Concurrent modification of the document occurred. Please try again.";
+            response.status = 409; // Conflict
+            break;
+
+        case "quota-exceeded":
+            response.error.code = error.code;
+            response.message = "Firestore usage limits have been exceeded for your project.";
+            response.status = 402; // Payment Required
+            break;
+
+        case "query-needs-index":
+            response.error.code = error.code;
+            response.message = "The query requires an index. Please create the necessary index.";
+            response.status = 400; // Bad Request
+            break;
+
+        case "write-rate-exceeded":
+            response.error.code = error.code;
+            response.message = "Firestore write rate limit exceeded. Please slow down your requests.";
+            response.status = 429; // Too Many Requests
+            break;
+
+        case "billing-issue":
+            response.error.code = error.code;
+            response.message = "There's an issue with your billing account. Please check your billing settings.";
+            response.status = 402; // Payment Required
             break;
 
 

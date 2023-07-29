@@ -1,7 +1,9 @@
+import { useAuthValue } from "../../components/AuthProvider";
+import Cart from "../../logic/Objects/Cart";
 
 interface subElements {
     product: {
-        id: number;
+        id: string;
         name: string;
         price: number;
         currency: string;
@@ -17,6 +19,29 @@ interface subElements {
 export default function ProductElement(props: subElements) {
 
     const product = props.product;
+    const authProvider = useAuthValue();
+
+    const addToCart = async () => {
+
+        try {
+
+            if(!authProvider.cardId) return alert("Please login to add items to cart");
+
+
+            const cart = new Cart(authProvider.cardId);
+            const response = await cart.addItem(product.id, 1);
+
+            if (response.success) {
+                alert("Item added to cart");
+            } else {
+                console.log(response);
+            }
+
+        } catch (error: any) {
+            console.log(error);
+        }
+
+    }
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -57,7 +82,13 @@ export default function ProductElement(props: subElements) {
 
                 >More Details</a>
                 {/* Add to cart */}
-                <button className="w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-indigo-500 rounded-md hover:bg-indigo-600">Add to Cart</button>
+                <button
+                    className="w-full px-4 py-2 mt-4 text-sm font-medium 
+                        text-white bg-indigo-500 rounded-md hover:bg-indigo-600"
+                    onClick={addToCart}
+                >
+                    Add to Cart
+                </button>
             </div>
         </div>
     )

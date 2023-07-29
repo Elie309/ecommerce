@@ -1,258 +1,228 @@
-import IResponse from "../interface/IResponse";
+import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import Product from "./Product";
+import { fireDB } from "../../firebase/firebase";
+import IResponse from "../interface/IResponse";
+import firebaseErrorHandler from "../Helpers/FirebaseErrorHandler";
 
-//TODO: Remove the _ from the private variables they were put due to the error not used
+class Item {
+  #id: number = 0;
+  #quantity: number = 0;
+
+  constructor(id: number, quantity: number) {
+    this.id = id;
+    this.quantity = quantity;
+  }
+
+  // Get the item id
+  get id(): number {
+    return this.#id;
+  }
+
+  // Set the item id
+  set id(value: number) {
+    this.#id = value;
+  }
+
+  // Get the item quantity
+  get quantity(): number {
+    return this.#quantity;
+  }
+
+  // Set the item quantity
+  set quantity(value: number) {
+    this.#quantity = value;
+  }
+}
 
 export default class Cart {
 
-  private _items: Product[] = [];
-  private _userId: string = "";
-  private _totalPrice: number = 0;
-  private _totalItems: number = 0;
-  private _totalDiscount: number = 0;
-  private _totalTax: number = 0;
+  #id: string = "";
+  #items: Product[] = [];
 
+  static CART_COLLECTION = "cart";
 
-  constructor(items: Product[]) {
-    this.items = items;
+  constructor(cardId?: string) {
+    this.id = cardId || "";
+    this.items = [];
   }
 
+  //#region Getters & setters
+
+  // Get the cart id
+  get id(): string {
+    return this.#id;
+  }
+
+  // Set the cart id
+  set id(value: string) {
+    this.#id = value;
+  }
+
+  // Get the cart items
   get items(): Product[] {
-    return this._items;
+    return this.#items;
   }
 
+  // Set the cart items
   set items(value: Product[]) {
-
-    //TODO: Validation of the products
-    this._items = value;
+    this.#items = value;
   }
 
-  get userId(): string {
-    return this._userId;
+  //#endregion
+
+
+  // #region Methods
+
+
+
+
+  static async createCart(): Promise<Cart> {
+
+    try {
+
+      const cart = new Cart();
+
+      const cartRef = await addDoc(collection(fireDB, Cart.CART_COLLECTION), {
+        itmes: []
+      });
+
+      cart.id = cartRef.id;
+      return cart;
+
+    } catch (error) {
+      throw error;
+    }
   }
 
-  set userId(value: string) {
-    this._userId = value;
-  }
+  // Add an item to the cart
+  public async addItem(productId: string, quantity: number): Promise<IResponse<string | null>> {
 
-  get totalPrice(): number {
-    return this._totalPrice;
-  }
+    try {
 
-  set totalPrice(value: number) {
-    this._totalPrice = value;
-  }
+      const cartRef = doc(fireDB, Cart.CART_COLLECTION, this.id);
 
-  get totalItems(): number {
-    return this._totalItems;
-  }
-
-  set totalItems(value: number) {
-    this._totalItems = value;
-  }
-
-  get totalDiscount(): number {
-    return this._totalDiscount;
-  }
-
-  set totalDiscount(value: number) {
-    this._totalDiscount = value;
-  }
-
-  get totalTax(): number {
-    return this._totalTax;
-  }
-
-  set totalTax(value: number) {
-    this._totalTax = value;
-  }
-
-
-  static async addItemToCart(product: Product, _quantity: number): Promise<IResponse<Product | null>> {
-      
-      try {
-
-        const response = {
-          error: {
-            code: "",
-            message: ""
-          },
-          success: true,
-          status: 200,
-          message: "Product added to cart",
-          data: product
-        }
-
-        return response;
-        
-      } catch (error) {
-
-        const response = {
-          error: {
-            code: "",
-            message: ""
-          },
-          success: false,
-          status: 500,
-          message: "Error adding product to cart",
-          data: null
-        }
-
-        return response;
-        
+      //TODO: ADJUST QUANTITY
+      const updateArrayCompany = {
+        items: arrayUnion({ id: productId, quantity })
       }
 
+      await updateDoc(cartRef, updateArrayCompany);
 
+      return {
+        error: {
+          code: "",
+          message: ""
+        },
+        message: "Item added to cart",
+        status: 200,
+        success: true,
+        data: "Success"
+      };
+
+
+    } catch (error: any) {
+      return firebaseErrorHandler(error);
+    }
 
   }
 
+  // Get cart items
+  async getItems(): Promise<IResponse<Product[] | null>> {
 
-  static async removeItemFromCart(product: Product, _quantity: number): Promise<IResponse<Product | null>> {
-        
-      try {
-  
-        const response = {
+    try {
+
+      const cartRef = doc(fireDB, Cart.CART_COLLECTION, this.id);
+
+      const cartSnap = await getDoc(cartRef);
+
+
+
+      if (!cartSnap.exists()) {
+        return {
           error: {
             code: "",
             message: ""
           },
-          success: true,
-          status: 200,
-          message: "Product removed from cart",
-          data: product
-        }
-  
-        return response;
-        
-      } catch (error) {
-  
-        const response = {
-          error: {
-            code: "",
-            message: ""
-          },
+          message: "Cart not found",
+          status: 404,
           success: false,
-          status: 500,
-          message: "Error removing product from cart",
-          data: null
-        }
-  
-        return response;
-        
+          data: []
+        };
       }
+
+      const cartData = cartSnap.data();
+
+
+      const fetchedProducts = await Product.getProductsByIds(cartData?.items.map((item: any) => item.id));
+
+
+      let Temp = fetchedProducts?.data?.map((product: Product) => {
+        let pro = product;
+        const item = cartData?.items.find((item: any) => item.id === product.id);
+        pro.quantity = item?.quantity;
+        return pro;
+
+      });
+
+      console.log(fetchedProducts?.data);
+
+      this.items = fetchedProducts.data || [];
+
+
+      return {
+        error: {
+          code: "",
+          message: ""
+        },
+        message: "Cart items",
+        status: 200,
+        success: true,
+        data: this.items
+      };
+
+    } catch (error: any) {
+
+
+      return {
+        error: {
+          code: "",
+          message: ""
+        },
+        message: "Cart items",
+        status: 200,
+        success: true,
+        data: null
+      };
 
     }
 
-    static async getCart(_userId: string): Promise<IResponse<Cart | null>> {
+  }
 
-      try {
+  // Remove an item from the cart
+  removeItem(): void {
 
-        const response = {
-          error: {
-            code: "",
-            message: ""
-          },
-          success: true,
-          status: 200,
-          message: "Cart retrieved",
-          data: null
-        }
+  }
 
-        return response;
-        
-      } catch (error) {
+  // Update the quantity of an item in the cart
+  updateQuantity(): void {
+  }
 
-        const response = {
-          error: {
-            code: "",
-            message: ""
-          },
-          success: false,
-          status: 500,
-          message: "Error retrieving cart",
-          data: null
-        }
+  // Get the total number of items in the cart
+  getTotalItems(): number {
+    return this.items.reduce((total, item) => total + item.quantity, 0);
+  }
 
-        return response;
-        
-      }
+  // Get the total price of all items in the cart
+  getTotalPrice(): number {
+    return this.items.reduce((total, item) => total + item.price * item.quantity, 0);
+  }
 
-    }
+  // Clear the cart
+  clearCart(): void {
+    this.items = [];
+  }
 
-    static async updateCart(_cart: Cart): Promise<IResponse<Cart | null>> {
-        
-        try {
-  
-          const response = {
-            error: {
-              code: "",
-              message: ""
-            },
-            success: true,
-            status: 200,
-            message: "Cart updated",
-            data: null
-          }
-  
-          return response;
-          
-        } catch (error) {
-  
-          const response = {
-            error: {
-              code: "",
-              message: ""
-            },
-            success: false,
-            status: 500,
-            message: "Error updating cart",
-            data: null
-          }
-  
-          return response;
-          
-        }
-  
-      }
 
-      
-      static async deleteCart(_userId: string): Promise<IResponse<Cart | null>> {
-        
-        try {
-  
-          const response = {
-            error: {
-              code: "",
-              message: ""
-            },
-            success: true,
-            status: 200,
-            message: "Cart deleted",
-            data: null
-          }
-  
-          return response;
-          
-        } catch (error) {
-  
-          const response = {
-            error: {
-              code: "",
-              message: ""
-            },
-            success: false,
-            status: 500,
-            message: "Error deleting cart",
-            data: null
-          }
-  
-          return response;
-          
-        }
-  
-      }
-
-      
-
+  //#endregion
 
 }

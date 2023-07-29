@@ -20,7 +20,7 @@ import Home from "./pages/Home.tsx";
 import { useEffect, useState } from "react";
 import { AuthProvider, IAuthValue } from "./components/AuthProvider.tsx";
 import Profile from "./pages/clients/Profile.tsx";
-import Cart from "./pages/clients/Cart.tsx";
+import CartComponent from "./pages/clients/CartComponent.tsx";
 
 
 
@@ -54,10 +54,11 @@ export default function App() {
 
           setUserInfo({
             authenticated: response.data !== null,
-            username: response.data.displayName!,
+            username: response.data.username,
             email: response.data.email!,
-            cardId: response.data.uid,
+            cardId: response.data.cartId,
           });
+
 
         }else {
           setUserInfo(initialState);
@@ -125,7 +126,7 @@ export default function App() {
     },
     {
       path: "/cart",
-      element: isAuthenticated ? <Cart /> : <Navigate to={"/login"} />,
+      element: isAuthenticated ? <CartComponent /> : <Navigate to={"/login"} />,
     },
 
     // Sales related routes
@@ -159,6 +160,7 @@ export default function App() {
     },
 
   ]);
+
 
   return (
     <>
