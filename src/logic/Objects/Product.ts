@@ -42,16 +42,17 @@ const PRODUCT_COLLECTION = 'products';
 
 export default class Product {
 
-  #id = '';
-  #name = '';
-  #price = 0;
-  #currency = '';
-  #description = '';
+  #id: string = '';
+  #name: string = '';
+  #price: number = 0;
+  #currency: string = '';
+  #description: string = '';
+  #features: { [key: string]: string; } = {}
   #image = '';
-  #category = '';
-  #quantity = 0;
-  #isAvailable = true;
-  #reviews = '';
+  #category: string = '';
+  #quantity: number = 0;
+  #isAvailable:boolean = true;
+  #reviews: string = '';
 
   constructor(name: string, price: number, currency: string, description: string, image: string, category: string) {
     this.name = name;
@@ -142,6 +143,18 @@ export default class Product {
     return this.#image;
   }
 
+  // Setter and getters for 'features'
+  set features(value: { [key: string]: string; }) {
+    if (typeof value !== 'object') {
+      throw new Error('Invalid features. Must be an object.');
+    }
+    this.#features = value;
+  }
+
+  get features() {
+    return this.#features;
+  }
+
   // Setter and getter for 'category'
   set category(value) {
     if (typeof value !== 'string') {
@@ -182,6 +195,7 @@ export default class Product {
     }
     this.#reviews = value;
   }
+
   get reviews() {
     return this.#reviews;
   }
@@ -203,6 +217,7 @@ export default class Product {
       price: this.price,
       description: this.description,
       currency: this.currency,
+      features: this.features,
       image: this.image,
       category: this.category,
       quantity: this.quantity,
@@ -378,6 +393,47 @@ export default class Product {
       }
     }
 
+
+  }
+
+  static async getProductsByIds(ids: string[]): Promise<IResponse<Product[] | null>> {
+    try{
+        
+        const products: Product[] = [];
+        const productsCollection = collection(fireDB, PRODUCT_COLLECTION);
+        const productsSnapshot = await getDocs(productsCollection);
+        productsSnapshot.forEach((doc: any) => {
+          if(ids.includes(doc.id)){
+            let product = new Product(doc.data().name, doc.data().price, doc.data().currency, doc.data().description, doc.data().image, doc.data().category);
+            product.id = doc.id;
+            product.quantity = doc.data().quantity;
+            product.isAvailable = doc.data().isAvailable;
+            product.reviews = doc.data().reviews;
+            products.push(product);
+          }
+        });
+        return {
+          success: true,
+          status: 200,
+          message: "Products fetched successfully",
+          data: products,
+          error: {
+            code: "",
+            message: ""
+          }
+        }
+    }catch(e: any){
+      return {
+        success: false,
+        status: 500,
+        message: "Products not fetched",
+        data: null,
+        error: {
+          code: e.code,
+          message: e.message
+        }
+      }
+    }
 
   }
 
