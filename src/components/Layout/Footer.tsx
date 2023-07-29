@@ -1,7 +1,7 @@
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-6 px-8">
+    <footer className="bg-gray-900 text-white py-2 px-8">
       <div className="max-w-4xl mx-auto flex justify-between items-center">
         <div>
           <p>&copy; 2023 Techology. All rights reserved.</p>
