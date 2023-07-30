@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { AuthProvider, IAuthValue } from "./components/AuthProvider.tsx";
 import Profile from "./pages/clients/Profile.tsx";
 import CartComponent from "./pages/clients/CartComponent.tsx";
+import Loading from "./components/Loading.tsx";
 
 
 
@@ -77,16 +78,7 @@ export default function App() {
   }, []);
 
   if (loading) {
-
-    return (
-
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-
-
-    )
-
+    return <Loading />
   }
 
   const routerBroswer = createBrowserRouter([
