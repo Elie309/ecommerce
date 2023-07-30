@@ -206,7 +206,16 @@ export default class Product {
 
   //Method to create object of Product class using json object
   static fromJson(json: any): Product {
-    return new Product(json.name, json.price, json.currency, json.description, json.image, json.category);
+    let product = new Product(json.name, json.price, json.currency, json.description, json.image, json.category);
+  
+    product.id = json.id;
+    product.features = json.features;
+    product.quantity = json.quantity;
+    product.isAvailable = json.isAvailable;
+    product.reviews = json.reviews;
+
+    return product;
+
   }
 
   //Method to create json object from Product class object

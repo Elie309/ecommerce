@@ -1,25 +1,24 @@
-import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, arrayUnion, collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import Product from "./Product";
 import { fireDB } from "../../firebase/firebase";
 import IResponse from "../interface/IResponse";
-import firebaseErrorHandler from "../Helpers/FirebaseErrorHandler";
 
-class Item {
-  #id: number = 0;
+class ItemCart {
+  #id: string = "";
   #quantity: number = 0;
 
-  constructor(id: number, quantity: number) {
+  constructor(id: string, quantity: number) {
     this.id = id;
     this.quantity = quantity;
   }
 
   // Get the item id
-  get id(): number {
+  get id(): string {
     return this.#id;
   }
 
   // Set the item id
-  set id(value: number) {
+  set id(value: string) {
     this.#id = value;
   }
 
@@ -70,12 +69,21 @@ export default class Cart {
 
   //#endregion
 
+  //#region Simpe Methods
 
-  // #region Methods
+  public isCartEmpty(): boolean {
+    return this.items.length === 0;
+  }
+
+  //#endregion
 
 
+  // #region CRUD Methods
 
-
+  /**
+   * Create a new cart in the database and return the cart object with the ID set
+   * @returns Promise<Cart> a new cart object
+   */
   static async createCart(): Promise<Cart> {
 
     try {
@@ -83,7 +91,7 @@ export default class Cart {
       const cart = new Cart();
 
       const cartRef = await addDoc(collection(fireDB, Cart.CART_COLLECTION), {
-        itmes: []
+        items: []
       });
 
       cart.id = cartRef.id;
@@ -94,7 +102,12 @@ export default class Cart {
     }
   }
 
-  // Add an item to the cart
+  /**
+   * 
+   * @param productId String id of the product to add to the cart
+   * @param quantity Quantity of the product to add to the cart
+   * @returns 
+   */
   public async addItem(productId: string, quantity: number): Promise<IResponse<string | null>> {
 
     try {
@@ -102,11 +115,13 @@ export default class Cart {
       const cartRef = doc(fireDB, Cart.CART_COLLECTION, this.id);
 
       //TODO: ADJUST QUANTITY
-      const updateArrayCompany = {
+      const updateArrayCart = {
         items: arrayUnion({ id: productId, quantity })
       }
 
-      await updateDoc(cartRef, updateArrayCompany);
+      await updateDoc(cartRef, updateArrayCart);
+
+      //No need to update the cart items, they will be updated when the cart is fetched
 
       return {
         error: {
@@ -121,12 +136,26 @@ export default class Cart {
 
 
     } catch (error: any) {
-      return firebaseErrorHandler(error);
+      return {
+        error: {
+          code: "",
+          message: ""
+        },
+        message: "Item not added to cart",
+        status: 500,
+        success: false,
+        data: null
+      };
     }
 
   }
 
-  // Get cart items
+  /**
+   * Get the items in the cart from the database & update the cart items
+   * Carts quantity is updated from the database
+   * The Carts items are set to the fetched products
+   * @returns IResponse<Product[] | null> either a list of products or null (nothing found)
+   */
   async getItems(): Promise<IResponse<Product[] | null>> {
 
     try {
@@ -152,22 +181,24 @@ export default class Cart {
 
       const cartData = cartSnap.data();
 
+      const fetchedProducts = await Product.getProductsByIds(cartData?.items.map((item: ItemCart) => item.id));
 
-      const fetchedProducts = await Product.getProductsByIds(cartData?.items.map((item: any) => item.id));
+      if (fetchedProducts.success) {
 
+        let data = fetchedProducts.data || [];
 
-      let Temp = fetchedProducts?.data?.map((product: Product) => {
-        let pro = product;
-        const item = cartData?.items.find((item: any) => item.id === product.id);
-        pro.quantity = item?.quantity;
-        return pro;
+        if (data.length > 0) {
+          data = data.map((product: Product) => {
+            const item: ItemCart = cartData.items.find((item: ItemCart) => {
+              return item.id === product.id;
+            });
+            product.quantity = item?.quantity || 0;
+            return product;
+          })
+        }
 
-      });
-
-      console.log(fetchedProducts?.data);
-
-      this.items = fetchedProducts.data || [];
-
+        this.items = data || [];
+      }
 
       return {
         error: {
@@ -181,7 +212,6 @@ export default class Cart {
       };
 
     } catch (error: any) {
-
 
       return {
         error: {
@@ -198,8 +228,67 @@ export default class Cart {
 
   }
 
-  // Remove an item from the cart
-  removeItem(): void {
+  /**
+   * Remove an item from the cart - both from the database and the cart items
+   * @param productId String id of the product to remove from the cart
+   * @returns 
+   */
+  public async removeItem(productId: string): Promise<IResponse<string | null>> {
+
+
+    try {
+
+      const cartRef = doc(fireDB, Cart.CART_COLLECTION, this.id);
+
+      const cartSnap = await getDoc(cartRef);
+
+      if (!cartSnap.exists()) {
+        return {
+          error: {
+            code: "",
+            message: ""
+          },
+          message: "Cart not found",
+          status: 404,
+          success: false,
+          data: null
+        };
+      }
+
+      const cartData = cartSnap.data();
+
+      const updateArrayCart = {
+        items: cartData?.items.filter((item: ItemCart) => item.id !== productId)
+      }
+
+      await updateDoc(cartRef, updateArrayCart);
+
+      this.items = this.items.filter((item: Product) => item.id !== productId);
+
+      return {
+        error: {
+          code: "",
+          message: ""
+        },
+        message: "Item removed from cart",
+        status: 200,
+        success: true,
+        data: "Success"
+      };
+
+    } catch (error: any) {
+      return {
+        error: {
+          code: "",
+          message: ""
+        },
+        message: "Item couldn't be removed from cart",
+        status: 500,
+        success: false,
+        data: null,
+      };
+    }
+
 
   }
 
@@ -217,9 +306,45 @@ export default class Cart {
     return this.items.reduce((total, item) => total + item.price * item.quantity, 0);
   }
 
-  // Clear the cart
-  clearCart(): void {
-    this.items = [];
+  /**
+   * Clear cart items from the database & update the cart items
+   * @returns IResponse<string | null> either a success message or null (nothing found)
+   */
+  public async clearCart(): Promise<IResponse<string | null>> {
+
+    try {
+
+      const cartRef = doc(fireDB, Cart.CART_COLLECTION, this.id);
+
+      await updateDoc(cartRef, {
+        items: []
+      });
+
+      this.items = [];
+
+      return {
+        error: {
+          code: "",
+          message: ""
+        },
+        message: "Cart cleared",
+        status: 200,
+        success: true,
+        data: "Success"
+      };
+
+    } catch (error: any) {
+      return {
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+        message: "Cart couldn't be cleared",
+        status: 500,
+        success: false,
+        data: null,
+      };
+    }
   }
 
 

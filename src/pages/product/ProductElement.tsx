@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuthValue } from "../../components/AuthProvider";
 import Cart from "../../logic/Objects/Cart";
 
@@ -21,8 +22,11 @@ export default function ProductElement(props: subElements) {
     const product = props.product;
     const authProvider = useAuthValue();
 
-    const addToCart = async () => {
+    const [loading, setLoading] = useState<boolean>(false);
 
+
+    const addToCart = async () => {
+        setLoading(true);
         try {
 
             if(!authProvider.cardId) return alert("Please login to add items to cart");
@@ -34,11 +38,13 @@ export default function ProductElement(props: subElements) {
             if (response.success) {
                 alert("Item added to cart");
             } else {
-                console.log(response);
+                alert(response.message);
             }
 
         } catch (error: any) {
-            console.log(error);
+            alert(error.message);
+        }finally{
+            setLoading(false);
         }
 
     }
@@ -74,18 +80,25 @@ export default function ProductElement(props: subElements) {
 
             <div className="grid grid-cols-2 gap-2">
                 {/* More details */}
-                <a
+                <button
                     className="w-full px-4 py-2 mt-4 text-sm font-medium 
                           text-indigo-500 border-2 border-indigo-500 rounded-md
+                          disabled:opacity-50 disabled:hover:cursor-wait
                             hover:bg-gray-100 text-center"
-                    href={`/products/${product.id}`}
-
-                >More Details</a>
+                    onClick={() => {
+                        window.location.href = `/product/${product.id}`
+                    }}
+                    disabled={loading}
+                >More Details</button>
                 {/* Add to cart */}
                 <button
                     className="w-full px-4 py-2 mt-4 text-sm font-medium 
-                        text-white bg-indigo-500 rounded-md hover:bg-indigo-600"
+                        text-white 
+                        disabled:opacity-50 disabled:hover:cursor-wait
+                        
+                        bg-indigo-500 rounded-md hover:bg-indigo-600"
                     onClick={addToCart}
+                    disabled={loading}
                 >
                     Add to Cart
                 </button>
