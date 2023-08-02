@@ -12,6 +12,7 @@ A system sales should be put in place
 
 - Sales Offers, orders & Invoice
 - Purchase order & invoice
+- To put on sales - (SSDs Externals, SSDs, Externals HDD, Belkins, Ugreen)
 
 Which will both update the quantity of the product
 
